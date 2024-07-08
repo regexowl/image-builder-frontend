@@ -152,6 +152,10 @@ const openIncludedPackagesPopover = async () => {
 };
 
 describe('packages request generated correctly', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   test('with custom packages', async () => {
     await renderCreateMode();
     await goToPackagesStep();
@@ -221,6 +225,10 @@ describe('packages request generated correctly', () => {
 });
 
 describe('package recommendations', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   test('selecting single recommendation adds it to the request', async () => {
     await renderCreateMode();
     await goToPackagesStep();
@@ -284,6 +292,10 @@ describe('package recommendations', () => {
 });
 
 describe('Packages edit mode', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   test('edit mode works', async () => {
     const id = mockBlueprintIds['packages'];
     await renderEditMode(id);
@@ -298,6 +310,10 @@ describe('Packages edit mode', () => {
 });
 
 describe('pagination on packages step', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   test('itemcount correct after search', async () => {
     await renderCreateMode();
     await goToPackagesStep();
@@ -340,6 +356,10 @@ describe('pagination on packages step', () => {
 });
 
 describe('package groups on packages step', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   test('included packages popover', async () => {
     await renderCreateMode();
     await goToPackagesStep();

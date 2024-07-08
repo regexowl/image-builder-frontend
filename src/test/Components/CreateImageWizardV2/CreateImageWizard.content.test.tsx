@@ -78,21 +78,23 @@ afterEach(() => {
 });
 
 const typeIntoSearchBox = async (searchTerm: string) => {
+  const user = userEvent.setup();
   const searchbox = await screen.findByRole('textbox', {
     name: /search packages/i,
   });
 
-  await userEvent.click(searchbox);
-  await userEvent.type(searchbox, searchTerm);
+  await waitFor(() => user.click(searchbox));
+  await waitFor(() => user.type(searchbox, searchTerm));
 };
 
 const clearSearchBox = async () => {
+  const user = userEvent.setup();
   const searchbox = await screen.findByRole('textbox', {
     name: /search packages/i,
   });
 
-  await userEvent.click(searchbox);
-  await userEvent.clear(searchbox);
+  await waitFor(() => user.click(searchbox));
+  await waitFor(() => user.clear(searchbox));
 };
 
 const getAllCheckboxes = async () => {
@@ -107,9 +109,9 @@ const getAllCheckboxes = async () => {
 };
 
 const toggleSelected = async () => {
-  await userEvent.click(
-    await screen.findByRole('button', { name: /selected/i })
-  );
+  const user = userEvent.setup();
+  const selected = await screen.findByRole('button', { name: /selected/i });
+  await waitFor(async () => user.click(selected));
 };
 
 const checkRecommendationsEmptyState = async () => {
@@ -131,20 +133,23 @@ describe('Step Packages', () => {
     ));
 
     // select aws as upload destination
-    await userEvent.click(await screen.findByTestId('upload-aws'));
+    const uploadAws = await screen.findByTestId('upload-aws');
+
+    user.click(uploadAws);
     await clickNext();
 
     // aws step
-    await userEvent.click(
-      await screen.findByRole('radio', {
-        name: /manually enter an account id\./i,
-      })
-    );
-    await userEvent.type(
-      await screen.findByRole('textbox', {
-        name: 'aws account id',
-      }),
-      '012345678901'
+    const manualOption = await screen.findByRole('radio', {
+      name: /manually enter an account id\./i,
+    });
+    await waitFor(async () => user.click(manualOption));
+    await waitFor(async () =>
+      user.type(
+        await screen.findByRole('textbox', {
+          name: 'aws account id',
+        }),
+        '012345678901'
+      )
     );
     await clickNext();
     // skip registration
@@ -152,9 +157,9 @@ describe('Step Packages', () => {
       name: 'Select activation key',
     });
 
-    await userEvent.click(
-      await screen.findByTestId('registration-radio-later')
-    );
+    const registerLater = await screen.findByTestId('registration-radio-later');
+    user.click(registerLater);
+
     await clickNext();
     // skip OpenSCAP
     await clickNext();
@@ -255,7 +260,7 @@ describe('Step Packages', () => {
     const checkboxes = await getAllCheckboxes();
 
     for (const checkbox in checkboxes) {
-      await userEvent.click(checkboxes[checkbox]);
+      user.click(checkboxes[checkbox]);
     }
 
     await toggleSelected();
@@ -290,8 +295,8 @@ describe('Step Packages', () => {
     let firstPkgCheckbox = (await getFirstPkgCheckbox()) as HTMLInputElement;
 
     expect(firstPkgCheckbox.checked).toEqual(false);
-    await userEvent.click(firstPkgCheckbox);
-    expect(firstPkgCheckbox.checked).toEqual(true);
+    user.click(firstPkgCheckbox);
+    await waitFor(() => expect(firstPkgCheckbox.checked).toEqual(true));
 
     await clickNext();
     await clickBack();
@@ -331,8 +336,8 @@ describe('Step Packages', () => {
 
     const checkboxes = await getAllCheckboxes();
 
-    await userEvent.click(checkboxes[0]);
-    await userEvent.click(checkboxes[1]);
+    user.click(checkboxes[0]);
+    user.click(checkboxes[1]);
 
     await clearSearchBox();
     await typeIntoSearchBox('mock');
@@ -347,8 +352,8 @@ describe('Step Packages', () => {
       }
     );
 
-    await userEvent.click(checkboxes[0]);
-    await userEvent.click(checkboxes[1]);
+    user.click(checkboxes[0]);
+    user.click(checkboxes[1]);
 
     await toggleSelected();
 
@@ -373,7 +378,7 @@ describe('Step Packages', () => {
 
     const checkboxes = await getAllCheckboxes();
 
-    await userEvent.click(checkboxes[0]);
+    user.click(checkboxes[0]);
 
     await screen.findByText('recommendedPackage1');
     await screen.findByText('recommendedPackage2');
@@ -391,17 +396,16 @@ describe('Step Packages', () => {
 
     const checkboxes = await getAllCheckboxes();
 
-    await userEvent.click(checkboxes[0]);
+    user.click(checkboxes[0]);
 
     const addRecButtons = await screen.findAllByTestId(
       'add-recommendation-button'
     );
 
-    await userEvent.click(addRecButtons[0]);
+    user.click(addRecButtons[0]);
 
-    await userEvent.click(
-      await screen.findByRole('button', { name: /Selected/ })
-    );
+    const selected = await screen.findByRole('button', { name: /Selected/ });
+    user.click(selected);
 
     await within(pkgTable).findByText('recommendedPackage1');
   });
@@ -417,20 +421,22 @@ describe('Step Custom repositories', () => {
     ));
 
     // select aws as upload destination
-    await user.click(await screen.findByTestId('upload-aws'));
+    const uploadAws = await screen.findByTestId('upload-aws');
+    user.click(uploadAws);
     await clickNext();
 
     // aws step
-    await user.click(
-      await screen.findByRole('radio', {
-        name: /manually enter an account id\./i,
-      })
-    );
-    await user.type(
-      await screen.findByRole('textbox', {
-        name: 'aws account id',
-      }),
-      '012345678901'
+    const manualOption = await screen.findByRole('radio', {
+      name: /manually enter an account id\./i,
+    });
+    await waitFor(() => user.click(manualOption));
+    await waitFor(async () =>
+      user.type(
+        await screen.findByRole('textbox', {
+          name: 'aws account id',
+        }),
+        '012345678901'
+      )
     );
 
     await clickNext();
@@ -439,7 +445,9 @@ describe('Step Custom repositories', () => {
       name: 'Select activation key',
     });
 
-    await user.click(await screen.findByLabelText('Register later'));
+    const registerLater = await screen.findByLabelText('Register later');
+
+    user.click(registerLater);
     await clickNext();
     // skip OpenSCAP
     await clickNext();
@@ -459,8 +467,8 @@ describe('Step Custom repositories', () => {
     let firstRepoCheckbox = (await getFirstRepoCheckbox()) as HTMLInputElement;
 
     expect(firstRepoCheckbox.checked).toEqual(false);
-    await user.click(firstRepoCheckbox);
-    expect(firstRepoCheckbox.checked).toEqual(true);
+    user.click(firstRepoCheckbox);
+    await waitFor(() => expect(firstRepoCheckbox.checked).toEqual(true));
 
     await clickNext();
     await clickBack();
@@ -472,11 +480,11 @@ describe('Step Custom repositories', () => {
   test('correct number of repositories is fetched', async () => {
     await setUp();
 
-    await user.click(
-      await screen.findByRole('button', {
-        name: /^select$/i,
-      })
-    );
+    const select = await screen.findByRole('button', {
+      name: /^select$/i,
+    });
+
+    user.click(select);
 
     await screen.findByText(/select page \(10 items\)/i);
   });
@@ -492,8 +500,8 @@ describe('Step Custom repositories', () => {
       (await getFirstRepoCheckbox()) as HTMLInputElement;
 
     expect(firstRepoCheckbox.checked).toEqual(false);
-    await user.click(firstRepoCheckbox);
-    expect(firstRepoCheckbox.checked).toEqual(true);
+    user.click(firstRepoCheckbox);
+    await waitFor(() => expect(firstRepoCheckbox.checked).toEqual(true));
 
     const getSelectedButton = async () =>
       await screen.findByRole('button', {
@@ -501,7 +509,7 @@ describe('Step Custom repositories', () => {
       });
 
     const selectedButton = await getSelectedButton();
-    await user.click(selectedButton);
+    user.click(selectedButton);
 
     expect(firstRepoCheckbox.checked).toEqual(true);
 
@@ -529,8 +537,8 @@ describe('Step Custom repositories', () => {
 
     expect(firstRepoCheckbox.checked).toEqual(false);
     expect(secondRepoCheckbox.checked).toEqual(false);
-    await user.click(firstRepoCheckbox);
-    expect(firstRepoCheckbox.checked).toEqual(true);
+    user.click(firstRepoCheckbox);
+    await waitFor(() => expect(firstRepoCheckbox.checked).toEqual(true));
     expect(secondRepoCheckbox.checked).toEqual(false);
 
     const getAllButton = async () =>
@@ -539,7 +547,7 @@ describe('Step Custom repositories', () => {
       });
 
     const allButton = await getAllButton();
-    await user.click(allButton);
+    user.click(allButton);
 
     expect(firstRepoCheckbox.checked).toEqual(true);
     expect(secondRepoCheckbox.checked).toEqual(false);
